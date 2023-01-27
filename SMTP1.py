@@ -19,6 +19,11 @@ UPPER_A_ASCII = 65
 UPPER_Z_ASCII = 90
 LOWER_A_ASCII = 97
 LOWER_Z_ASCII = 122
+ERROR500 = "500 Syntax error: command unrecognized"
+ERROR501 = "501 Syntax error in parameters or arguments"
+ERROR503 = "503 Bad sequence of commands"
+DATA354 = "354 Start mail input; end with <CRLF>.<CRLF>"
+OK250 = "250 OK"
 
 
 def main():
@@ -34,9 +39,9 @@ def main():
             value = string[index]
 
             if mail_from_cmd():
-                print("250 OK")
+                print(OK250)
 
-                at_least_one_rcpt: bool = False
+                at_least_one: bool = False
                 while True:
                     index = 0
 
@@ -46,24 +51,56 @@ def main():
                     value = string[index]
 
                     if rcpt_to_cmd():
-                        print("250 OK")
-                        at_least_one_rcpt = True
+                        at_least_one = True
+                        print(OK250)
                     else:
                         index = 0
                         value = string[index]
-
-                        if data_cmd() and at_least_one_rcpt:
-                            print("354 Start mail input; end with <CRLF>.<CRLF>")
+                        error = ''
+                        if mail_from_cmd() or error == ERROR501:
+                            error = ERROR503
+                            break
                         else:
                             index = 0
-                            value = string[value]
-
-                            if data_cmd() and (not at_least_one_rcpt):
-                                error = "503 Bad sequence of commands"
-
-                            print(error)
-                            break
+                            value = string[index]
+                            error = ''
+                            if at_least_one and data_cmd():
+                                pass
+                            else:
+                                index = 0
+                                value = string[index]
+                                error = ''
+                                if ((not at_least_one) and data_cmd()) or error == ERROR501:
+                                    error = ERROR503
+                                    break
+                                else:
+                                    index = 0
+                                    value = string[index]
+                                    error = ''
+                                    rcpt_to_cmd()
+                                    break
+                
+                if error != '':
+                    print(error)
             else:
+                index = 0
+                value = string[index]
+                error = ''
+                if rcpt_to_cmd() or error == ERROR501:
+                    error = ERROR503
+                else:
+                    index = 0
+                    value = string[index]
+                    error = ''
+                    if data_cmd() or error == ERROR501:
+                        error = ERROR503
+                    else:
+                        index = 0
+                        value = string[index]
+                        error = ''
+                        mail_from_cmd()
+                
+                print(error)
         
     except (EOFError, IndexError):
         return

@@ -3,6 +3,7 @@
 
 
 import sys
+import os
 
 
 # Globals
@@ -74,6 +75,21 @@ def main():
                             if at_least_one and data_cmd():
                                 print(DATA354)
 
+                                while True:
+                                    message: str = sys.stdin.readline()
+                                    sys.stdout.write(message)
+                                    if message != '.\n':
+                                        data.append(message)
+                                    else:
+                                        break
+                                for path in forward:
+                                    full_path: str = "./forward" + path
+                                    if os.path.exists(full_path):
+                                        with open(full_path, 'at') as message:
+                                            message.writelines(data)
+                                    else:
+                                        with open(full_path, 'xt') as message:
+                                            message.writelines(data)
                             else:
                                 index = 0
                                 value = string[index]

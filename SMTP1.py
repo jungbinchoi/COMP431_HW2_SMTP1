@@ -75,6 +75,11 @@ def main():
                             if at_least_one and data_cmd():
                                 print(DATA354)
 
+                                data.append("From: <" + reverse + ">\n")
+
+                                for path in forward:
+                                    data.append("To: <" + path + ">\n")
+
                                 while True:
                                     message: str = sys.stdin.readline()
                                     sys.stdout.write(message)
@@ -83,13 +88,15 @@ def main():
                                     else:
                                         break
                                 for path in forward:
-                                    full_path: str = "./forward" + path
+                                    full_path: str = "./forward/" + path
                                     if os.path.exists(full_path):
                                         with open(full_path, 'at') as message:
                                             message.writelines(data)
                                     else:
                                         with open(full_path, 'xt') as message:
                                             message.writelines(data)
+                                
+                                print(OK250)
                             else:
                                 index = 0
                                 value = string[index]

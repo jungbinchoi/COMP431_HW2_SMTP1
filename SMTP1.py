@@ -97,6 +97,7 @@ def main():
                                             message.writelines(data)
                                 
                                 print(OK250)
+                                break
                             else:
                                 index = 0
                                 value = string[index]

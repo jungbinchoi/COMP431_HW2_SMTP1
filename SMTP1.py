@@ -10,6 +10,9 @@ string: str = ''
 value: str = ''
 index: int = 0
 error: str = ''
+forward: str = []
+reverse: str = ''
+data: str = []
 
 
 # Constants
@@ -27,7 +30,7 @@ OK250 = "250 OK"
 
 
 def main():
-    global string, value, index, error
+    global string, value, index, error, reverse, forward, data
     try: 
         while True:
             error = ''
@@ -37,6 +40,10 @@ def main():
             sys.stdout.write(string)
 
             value = string[index]
+
+            reverse = ''
+            forward.clear()
+            data.clear()
 
             if mail_from_cmd():
                 print(OK250)
@@ -52,7 +59,7 @@ def main():
 
                     if rcpt_to_cmd():
                         at_least_one = True
-                        print(OK250)
+                        print(OK250)                     
                     else:
                         index = 0
                         value = string[index]
@@ -65,7 +72,8 @@ def main():
                             value = string[index]
                             error = ''
                             if at_least_one and data_cmd():
-                                pass
+                                print(DATA354)
+
                             else:
                                 index = 0
                                 value = string[index]
@@ -112,7 +120,7 @@ def main():
     * Generates 500/501 Error
 """
 def mail_from_cmd():
-    global value, string, index, error
+    global value, string, index, error, reverse
     for char in "MAIL":
         if char != value:
             error = "500 Syntax error: command unrecognized"
@@ -145,6 +153,18 @@ def mail_from_cmd():
     if not CRLF():
         return False
 
+    # Saving reverse path
+    begin_index: int = 0
+    end_index: int = 0
+    temp_index: int = 0
+    for char in string:
+        if char == '<':
+            begin_index = temp_index + 1
+        elif char == '>':
+            end_index = temp_index
+        temp_index += 1
+    reverse = string[begin_index:end_index]
+
     return True
 
 
@@ -154,7 +174,7 @@ def mail_from_cmd():
     * Generates 500/501 Error
 """
 def rcpt_to_cmd():
-    global value, string, index, error
+    global value, string, index, error, forward
     for char in "RCPT":
         if char != value:
             error = "500 Syntax error: command unrecognized"
@@ -186,6 +206,17 @@ def rcpt_to_cmd():
 
     if not CRLF():
         return False
+
+    begin_index: int = 0
+    end_index: int = 0
+    temp_index: int = 0
+    for char in string:
+        if char == '<':
+            begin_index = temp_index + 1
+        elif char == '>':
+            end_index = temp_index
+        temp_index += 1
+    forward.append(string[begin_index:end_index])
 
     return True
 

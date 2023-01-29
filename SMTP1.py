@@ -87,14 +87,10 @@ def main():
                                         data.append(message)
                                     else:
                                         break
-                                
-                                # Remove newline from last entry because python adds newline by default on file writes
-                                data[len(data) - 1] = data[len(data) - 1].replace('\n', '')
 
                                 for path in forward:
                                     full_path: str = "./forward/" + path
                                     if os.path.exists(full_path):
-                                        data[0] = '\n' + data[0]
                                         with open(full_path, 'at') as message:
                                             message.writelines(data)
                                     else:

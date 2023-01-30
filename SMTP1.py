@@ -32,13 +32,15 @@ OK250 = "250 OK"
 
 def main():
     global string, value, index, error, reverse, forward, data
-    try: 
+    data_fail: bool = False
+    try:
         while True:
             error = ''
             index = 0
 
             string = sys.stdin.readline()
             sys.stdout.write(string)
+            data_fail = False
 
             value = string[index]
 
@@ -60,7 +62,7 @@ def main():
 
                     if rcpt_to_cmd():
                         at_least_one = True
-                        print(OK250)                     
+                        print(OK250)
                     else:
                         index = 0
                         value = string[index]
@@ -82,6 +84,9 @@ def main():
 
                                 while True:
                                     message: str = sys.stdin.readline()
+                                    if message == '':
+                                        data_fail = True
+                                        raise EOFError
                                     sys.stdout.write(message)
                                     if message != '.\n':
                                         data.append(message)
@@ -96,7 +101,7 @@ def main():
                                     else:
                                         with open(full_path, 'xt') as message:
                                             message.writelines(data)
-                                
+
                                 print(OK250)
                                 break
                             else:
@@ -112,7 +117,7 @@ def main():
                                     error = ''
                                     rcpt_to_cmd()
                                     break
-                
+
                 if error != '':
                     print(error)
             else:
@@ -132,10 +137,12 @@ def main():
                         value = string[index]
                         error = ''
                         mail_from_cmd()
-                
+
                 print(error)
-        
+
     except (EOFError, IndexError):
+        if data_fail:
+            print(ERROR501)
         return
 
 
@@ -206,7 +213,7 @@ def rcpt_to_cmd():
             return False
         index += 1
         value = string[index]
-    
+
     if not whitespace():
         error = "500 Syntax error: command unrecognized"
         return False
@@ -217,7 +224,7 @@ def rcpt_to_cmd():
             return False
         index += 1
         value = string[index]
-    
+
     if not nullspace():
         return False
 
@@ -307,7 +314,7 @@ def nullspace():
             error = ''
             return True
         return False
-    
+
     return True
 
 
@@ -369,7 +376,7 @@ def mailbox():
         if error == '':
             error = "501 Syntax error in parameters or arguments"
         return False
-    
+
     if value != '@':
         if error == '':
             error = "501 Syntax error in parameters or arguments"
@@ -381,7 +388,7 @@ def mailbox():
         if error == '':
             error = "501 Syntax error in parameters or arguments"
         return False
-    
+
     return True
 
 
@@ -426,12 +433,12 @@ def domain():
     global string, index, value
     if not element():
         return False
-    
+
     if value == '.':
         index += 1
         value = string[index]
         return domain()
-    
+
     return True
 
 
@@ -462,7 +469,7 @@ def name():
 
     let_dig_str()
 
-    return True 
+    return True
 
 
 """
